@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Estúdio de Gravação · Pistas do R Vibrante</title>
+<style>
+:root{
+  --lilas:#BCA2DD; --ceu:#7BE6FF; --rosa:#FFA9D2; --sol:#FFD97B;
+  --tinta:#35264a; --tinta2:#6a5b7d; --roxo:#6541a8; --roxo2:#4f3189;
+  --linha:#e6def1; --fundo:#ffffff; --suave:#f7f3fc; --ok:#0b7a6e; --okbg:#dff6f1;
+  --alerta:#a2440a; --alertabg:#fff1dc; --erro:#b3203f;
+  --raio:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fundo);color:var(--tinta);
+  font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--roxo);outline-offset:2px;border-radius:6px}
+.ic{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn{display:inline-flex;align-items:center;gap:.45em;border:2px solid var(--linha);background:#fff;border-radius:999px;padding:.5em 1em;font-weight:700;white-space:nowrap}
+.btn:hover{border-color:var(--lilas);background:var(--suave)}
+.btn.pri{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.btn.pri:hover{background:var(--roxo2);border-color:var(--roxo2)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.rec{background:#d5264b;border-color:#d5264b;color:#fff}
+.btn.mini{padding:.3em .65em;font-size:.88rem;border-width:1.5px}
+.btn.so-ic{padding:.4em .5em}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.grande{font-size:1.15rem;padding:.7em 1.5em}
+
+header.topo{display:flex;align-items:center;gap:1rem;padding:.7rem 1.2rem;border-bottom:2px solid var(--linha);flex-wrap:wrap;
+  background:linear-gradient(90deg,#fff 0,#fff 60%,#f4fcff 100%)}
+header.topo img{height:46px}
+header.topo h1{font-size:1.15rem;margin:0;line-height:1.2}
+header.topo h1 small{display:block;font-weight:600;color:var(--tinta2);font-size:.82rem}
+.geral{flex:1;min-width:220px}
+.barra{height:14px;border-radius:99px;background:var(--suave);border:1.5px solid var(--linha);overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:repeating-linear-gradient(135deg,var(--lilas) 0 10px,#cdb8e8 10px 20px);border-radius:99px;transition:width .3s}
+.geral span{font-size:.85rem;color:var(--tinta2);font-weight:600}
+.acoes{display:flex;gap:.4rem;flex-wrap:wrap}
+
+.aviso{margin:.8rem 1.2rem 0;padding:.7rem 1rem;border-radius:var(--raio);background:var(--alertabg);color:var(--alerta);border:1.5px solid #f3cf9a;font-weight:600}
+.aviso[hidden]{display:none}
+
+main{display:grid;grid-template-columns:270px 1fr;gap:1.2rem;padding:1.2rem;max-width:1280px;margin:0 auto}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+nav.blocos{display:flex;flex-direction:column;gap:.45rem;align-self:start;position:sticky;top:.8rem}
+@media(max-width:820px){nav.blocos{position:static}}
+nav.blocos button{all:unset;cursor:pointer;display:block;padding:.6rem .8rem;border-radius:var(--raio);border:2px solid var(--linha)}
+nav.blocos button:hover{border-color:var(--lilas)}
+nav.blocos button[aria-current=true]{border-color:var(--roxo);background:var(--suave)}
+nav.blocos b{display:flex;justify-content:space-between;gap:.5rem;font-size:.95rem}
+nav.blocos b span{font-weight:600;color:var(--tinta2);font-variant-numeric:tabular-nums}
+nav.blocos .barra{height:7px;margin-top:.35rem;border-width:1px}
+nav.blocos .tag{display:inline-block;font-size:.7rem;font-weight:800;background:var(--sol);border-radius:99px;padding:.05em .6em;margin-top:.3rem}
+nav.blocos .feito b::after{content:"";}
+
+section.lista h2{margin:.1rem 0 .2rem;font-size:1.4rem}
+section.lista p.desc{margin:0 0 .8rem;color:var(--tinta2);max-width:70ch}
+.ferr{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+.ferr label{display:inline-flex;align-items:center;gap:.4em;font-weight:600;font-size:.92rem;margin-left:auto}
+h3.grupo{margin:1.3rem 0 .5rem;font-size:1rem;color:var(--roxo2);border-bottom:2px dotted var(--linha);padding-bottom:.25rem}
+.entrada{border:2px solid var(--linha);border-radius:var(--raio);margin-bottom:.55rem;overflow:hidden}
+.entrada>.cab{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem .35rem .9rem;background:var(--suave);font-weight:800}
+.entrada>.cab span{flex:1}
+.entrada>.cab small{font-weight:600;color:var(--tinta2)}
+.item{display:grid;grid-template-columns:28px 1fr auto;gap:.6rem;align-items:center;padding:.45rem .5rem .45rem .9rem;border-top:1.5px solid var(--linha)}
+.item .txt{min-width:0}
+.item .txt b{display:block;overflow:hidden;text-overflow:ellipsis}
+.item .txt small{color:var(--tinta2);font-size:.8rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .txt code{font-family:ui-monospace,Menlo,monospace;font-size:.78rem}
+.item .bts{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end}
+.st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:2px dashed #c9bfd6;color:#c9bfd6}
+.st.rasc{border:2px solid var(--alerta);color:var(--alerta);background:var(--alertabg)}
+.st.ok{border:2px solid var(--ok);background:var(--ok);color:#fff}
+.vazio{padding:2rem;text-align:center;color:var(--tinta2);border:2px dashed var(--linha);border-radius:var(--raio)}
+
+dialog{border:0;border-radius:22px;padding:0;color:var(--tinta);box-shadow:0 20px 70px rgba(53,38,74,.35);max-width:min(96vw,980px);width:100%}
+dialog::backdrop{background:rgba(53,38,74,.55)}
+dialog .dcab{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.1rem;border-bottom:2px solid var(--linha)}
+dialog .dcab h2{font-size:1.1rem;margin:0;flex:1}
+dialog .dcorpo{padding:1.1rem}
+dialog.peq{max-width:min(96vw,560px)}
+dialog.med{max-width:min(96vw,720px)}
+.campo{display:block;margin-bottom:.9rem}
+.campo>span{display:block;font-weight:800;margin-bottom:.2rem}
+.campo>small{display:block;color:var(--tinta2);margin-top:.2rem}
+.campo input[type=text],.campo input[type=number],.campo select,.campo textarea{width:100%;padding:.55em .7em;border:2px solid var(--linha);border-radius:10px;background:#fff}
+.campo input[type=range]{width:100%;accent-color:var(--roxo)}
+.liga{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.8rem}
+.liga input{width:1.2em;height:1.2em;margin-top:.2em;accent-color:var(--roxo)}
+.liga small{display:block;color:var(--tinta2)}
+.rodape{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.6rem}
+hr{border:0;border-top:2px dotted var(--linha);margin:1rem 0}
+.ajuda h3{margin:1rem 0 .3rem;font-size:1rem;color:var(--roxo2)}
+.ajuda p,.ajuda li{max-width:68ch}
+.ajuda kbd{font:inherit;font-weight:800;border:1.5px solid var(--linha);border-bottom-width:3px;border-radius:6px;padding:0 .4em;background:#fff}
+
+/* estúdio */
+#estudio{max-width:min(98vw,1040px)}
+.tele{text-align:center;padding:1rem .5rem .6rem}
+.tele .rot{font-size:.9rem;font-weight:800;color:var(--roxo2);text-transform:uppercase;letter-spacing:.06em}
+.tele .fala{font-size:clamp(2.2rem,7vw,4.6rem);font-weight:800;line-height:1.1;margin:.2rem 0;word-break:break-word}
+.tele .fala.longa{font-size:clamp(1.5rem,4vw,2.4rem)}
+.tele .fala u{color:var(--roxo);text-decoration-thickness:.09em;text-underline-offset:.12em}
+.tele .dica{color:var(--tinta2);font-weight:600;min-height:1.4em}
+.palco{position:relative;border:2px solid var(--linha);border-radius:var(--raio);background:var(--suave);overflow:hidden}
+.palco canvas{display:block;width:100%;height:170px;touch-action:none}
+.conta{position:absolute;inset:0;display:grid;place-items:center;font-size:6rem;font-weight:900;color:var(--roxo);background:rgba(255,255,255,.82)}
+.conta[hidden]{display:none}
+.tempo{display:flex;align-items:center;gap:.6rem;margin:.6rem 0;font-weight:700;font-variant-numeric:tabular-nums}
+.tempo .barra{flex:1;position:relative;overflow:visible}
+.tempo .barra i{background:#d5264b;transition:none}
+.tempo .barra em{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--tinta);border-radius:2px}
+.nivel{display:flex;align-items:center;gap:.6rem;font-size:.85rem;font-weight:700}
+.nivel .med{flex:1;height:12px;border-radius:99px;background:linear-gradient(90deg,#eee 0 35%,#bfeee6 35% 85%,#f6b9c6 85% 100%);position:relative;border:1.5px solid var(--linha)}
+.nivel .med i{position:absolute;top:-4px;bottom:-4px;width:5px;border-radius:3px;background:var(--tinta);left:0}
+.nivel b{min-width:8.5em}
+.controles{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin:.9rem 0 .2rem}
+.msg{margin:.6rem 0 0;padding:.5rem .8rem;border-radius:10px;background:var(--alertabg);color:var(--alerta);font-weight:700;text-align:center}
+.msg[hidden]{display:none}
+.msg.boa{background:var(--okbg);color:var(--ok)}
+.nav{display:flex;align-items:center;gap:.5rem}
+.nav span{font-weight:700;color:var(--tinta2);font-variant-numeric:tabular-nums}
+.notas{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.7rem}
+.notas button[aria-pressed=true]{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.corte{font-size:.85rem;color:var(--tinta2);text-align:center;font-weight:600;margin-top:.35rem}
+/* vídeo */
+.vpalco{position:relative;background:#111;border-radius:var(--raio);overflow:hidden;aspect-ratio:16/9;max-height:52vh;margin:0 auto}
+.vpalco video{width:100%;height:100%;object-fit:contain;display:block;transform:scaleX(-1)}
+.vpalco svg.guia{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vpalco .conta{background:rgba(0,0,0,.45);color:#fff}
+.deixa{display:flex;gap:.5rem;justify-content:center;align-items:center;margin:.5rem 0;font-weight:800}
+.deixa i{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--lilas);display:block}
+.deixa i.on{background:var(--roxo);border-color:var(--roxo)}
+.deixa b{min-width:12em;text-align:left;font-size:1.1rem}
+.faixas{display:grid;grid-template-columns:auto 1fr auto;gap:.3rem .6rem;align-items:center;font-weight:700;font-size:.9rem;margin-top:.6rem}
+.faixas input{width:100%;accent-color:var(--roxo)}
+[hidden]{display:none!important}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:.6rem 1.1rem;border-radius:99px;font-weight:700;z-index:99;max-width:92vw}
+footer{padding:1rem 1.2rem 2rem;color:var(--tinta2);font-size:.82rem;text-align:center}
+</style>
+</head>
+<body>
+<header class="topo">
+  <img src="data:image/webp;base64,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" alt="Dálete Cavalcante, fonoaudióloga infantil">
+  <h1>Estúdio de Gravação<small>Pistas do R Vibrante</small></h1>
+  <div class="geral" aria-live="polite">
+    <span id="geralTxt">0 de 0 gravações prontas</span>
+    <div class="barra"><i id="geralBar"></i></div>
+  </div>
+  <div class="acoes">
+    <button class="btn" id="btAjustes"></button>
+    <button class="btn" id="btCopia"></button>
+    <button class="btn" id="btAjuda"></button>
+  </div>
+</header>
+<div class="aviso" id="avisoNav" hidden></div>
+<main>
+  <nav class="blocos" id="nav" aria-label="Blocos de gravação"></nav>
+  <section class="lista" id="lista"></section>
+</main>
+<footer>Brincolar Games · As gravações ficam guardadas só neste navegador, neste computador, até você baixar.</footer>
+
+<!-- ESTÚDIO -->
+<dialog id="estudio">
+  <div class="dcab">
+    <h2 id="eTitulo"></h2>
+    <div class="nav">
+      <button class="btn so-ic mini" id="ePrev" aria-label="Item anterior"></button>
+      <span id="ePos"></span>
+      <button class="btn so-ic mini" id="eNext" aria-label="Próximo item"></button>
+    </div>
+    <button class="btn mini" id="eLista"></button>
+  </div>
+  <div class="dcorpo">
+    <div class="tele">
+      <div class="rot" id="eRot"></div>
+      <div class="fala" id="eFala"></div>
+      <div class="dica" id="eDica"></div>
+    </div>
+
+    <div id="paneAudio">
+      <div class="palco">
+        <canvas id="onda" width="1800" height="340"></canvas>
+        <div class="conta" id="contaA" hidden></div>
+      </div>
+      <div class="corte" id="eCorte" hidden></div>
+    </div>
+
+    <div id="paneVideo" hidden>
+      <div class="vpalco">
+        <video id="vid" playsinline muted></video>
+        <svg class="guia" id="guia" viewBox="0 0 160 90" preserveAspectRatio="none">
+          <path d="M0 0H160V90H0Z M35 0V90H125V0Z" fill="rgba(0,0,0,.55)" fill-rule="evenodd"/>
+          <ellipse cx="80" cy="47" rx="24" ry="15" fill="none" stroke="#FFD97B" stroke-width=".9" stroke-dasharray="3 2"/>
+          <text x="80" y="9" text-anchor="middle" font-size="4.2" font-weight="700" fill="#fff">Encaixe a boca dentro do oval</text>
+        </svg>
+        <div class="conta" id="contaV" hidden></div>
+      </div>
+      <div class="deixa" id="deixa"><i></i><i></i><i></i><b id="deixaTxt"></b></div>
+      <div class="faixas" id="faixas" hidden>
+        <span>Início</span><input type="range" id="vIni" min="0" step="0.05" aria-label="Início do corte"><span id="vIniT"></span>
+        <span>Fim</span><input type="range" id="vFim" min="0" step="0.05" aria-label="Fim do corte"><span id="vFimT"></span>
+      </div>
+    </div>
+
+    <div class="tempo" id="eTempo">
+      <span id="eRelogio">0,0 s</span>
+      <div class="barra"><i id="eBarra"></i><em id="eMarca" title="Tempo previsto"></em></div>
+      <span id="eLimite"></span>
+    </div>
+    <div class="nivel" id="eNivel">
+      <span>Volume</span><div class="med"><i id="nivelI"></i></div><b id="nivelT">sem som</b>
+    </div>
+    <div class="notas" id="eNotas" hidden>
+      <span style="align-self:center;font-weight:800">Nota desta fala:</span>
+      <button class="btn" data-nota="10" aria-pressed="false">10 · Perfeito</button>
+      <button class="btn" data-nota="5" aria-pressed="false">5 · Quase</button>
+      <button class="btn" data-nota="2" aria-pressed="false">2 · Ainda não</button>
+    </div>
+    <div class="msg" id="eMsg" hidden></div>
+    <div class="controles" id="eCtl"></div>
+  </div>
+</dialog>
+
+<!-- AJUSTES -->
+<dialog id="ajustes" class="med">
+  <div class="dcab"><h2>Ajustes</h2><button class="btn mini" data-fechar>Fechar</button></div>
+  <div class="dcorpo">
+    <label class="campo"><span>Microfone</span>
+      <select id="sMic"></select>
+      <small>É o aparelho que capta a sua voz. Se usar um microfone externo, escolha ele aqui.</small></label>
+    <div class="nivel" style="margin-bottom:.9rem"><span>Teste</span><div class="med"><i id="nivelS"></i></div><b id="nivelST">sem som</b></div>
+    <label class="campo"><span>Ganho (volume de entrada): <b id="sGanhoT"></b></span>
+      <input type="range" id="sGanho" min="0.5" max="4" step="0.1">
+      <small>Aumenta ou diminui o volume da gravação. Fale normalmente: o marcador deve ficar na faixa verde, sem encostar no vermelho.</small></label>
+    <label class="campo"><span>Câmera</span>
+      <select id="sCam"></select>
+      <small>Usada só nos vídeos da boquinha.</small></label>
+    <hr>
+    <label class="liga"><input type="checkbox" id="sAuto"><span><b>Parar sozinho ao fim do tempo</b>
+      <small>A gravação termina sozinha quando a barra de tempo enche. Desligue se quiser falar mais devagar e parar você mesma.</small></span></label>
+    <label class="campo"><span>Folga depois do tempo previsto: <b id="sFolgaT"></b></span>
+      <input type="range" id="sFolga" min="1" max="6" step="0.5">
+      <small>Tempo extra antes de a gravação parar sozinha. O silêncio que sobrar é cortado depois.</small></label>
+    <label class="liga"><input type="checkbox" id="sProx"><span><b>Ir para o próximo item ao confirmar</b>
+      <small>Depois de confirmar, o estúdio abre o próximo item que ainda falta.</small></span></label>
+    <label class="liga"><input type="checkbox" id="sCont"><span><b>Modo contínuo</b>
+      <small>O próximo item já começa a contagem 3, 2, 1 sozinho. Bom para gravar um bloco inteiro de uma vez.</small></span></label>
+    <p id="sEspaco" style="color:var(--tinta2);font-size:.88rem"></p>
+  </div>
+</dialog>
+
+<!-- CÓPIA -->
+<dialog id="copia" class="peq">
+  <div class="dcab"><h2>Cópia de segurança</h2><button class="btn mini" data-fechar>Fechar</button></div>
+  <div class="dcorpo">
+    <p>As gravações ficam guardadas dentro deste navegador. A cópia de segurança é um arquivo único com tudo o que você já gravou, para guardar no computador ou no Google Drive.</p>
+    <p><button class="btn pri" id="cSalvar"></button></p>
+    <hr>
+    <p>Para continuar em outro computador, ou recuperar depois de um problema, escolha o arquivo da cópia. <b>Isso substitui o que está nesta página.</b></p>
+    <p><button class="btn" id="cRest"></button><input type="file" id="cArq" accept=".zip" hidden></p>
+    <p id="cMsg" style="font-weight:700"></p>
+  </div>
+</dialog>
+
+<!-- EDITAR -->
+<dialog id="editar" class="peq">
+  <div class="dcab"><h2 id="edTit"></h2><button class="btn mini" data-fechar>Cancelar</button></div>
+  <form class="dcorpo" id="edForm" method="dialog">
+    <div id="edCampos"></div>
+    <p id="edAviso" style="color:var(--alerta);font-weight:700"></p>
+    <div class="rodape"><button class="btn pri" value="ok">Salvar</button></div>
+  </form>
+</dialog>
+
+<!-- AJUDA -->
+<dialog id="ajuda" class="med">
+  <div class="dcab"><h2>Como usar</h2><button class="btn mini" data-fechar>Fechar</button></div>
+  <div class="dcorpo ajuda">
+    <h3>O caminho de cada gravação</h3>
+    <ol>
+      <li>Escolha um bloco na lateral e clique em <b>Gravar o que falta</b>, ou em um item da lista.</li>
+      <li>O texto aparece grande na tela. Clique em <b>Gravar</b>, espere a contagem 3, 2, 1 e fale.</li>
+      <li>A gravação para sozinha quando a barra de tempo enche. Você também pode parar antes.</li>
+      <li>Ouça. Se precisar, arraste as duas alças na onda sonora para cortar o início e o fim.</li>
+      <li>Clique em <b>Confirmar</b> se ficou boa, ou em <b>Regravar</b> para tentar de novo.</li>
+    </ol>
+    <h3>Atalhos do teclado no estúdio</h3>
+    <p><kbd>Espaço</kbd> grava e para · <kbd>O</kbd> ouve · <kbd>R</kbd> regrava · <kbd>Enter</kbd> confirma · <kbd>←</kbd> <kbd>→</kbd> trocam de item</p>
+    <h3>Entregar o material</h3>
+    <p>Em cada bloco, <b>Baixar bloco</b> gera um arquivo ZIP: uma pasta compactada com todas as gravações confirmadas, já com o nome e o formato certos. Envie esse arquivo ao Gabura sem abrir nem renomear nada.</p>
+    <h3>Cuidados</h3>
+    <ul>
+      <li><b>Use sempre o Google Chrome, neste mesmo computador.</b> O que foi gravado em um navegador não aparece em outro.</li>
+      <li>Não use janela anônima e não limpe os "dados de navegação" do Chrome sem antes salvar uma cópia de segurança.</li>
+      <li>Ao fim de cada dia de gravação, clique em <b>Cópia de segurança</b> e guarde o arquivo.</li>
+      <li>Grave em sala silenciosa, sem ventilador nem ar-condicionado, sempre à mesma distância do microfone.</li>
+    </ul>
+    <h3>Palavras técnicas</h3>
+    <ul>
+      <li><b>WAV:</b> formato de áudio sem perda de qualidade. É o que o jogo precisa.</li>
+      <li><b>ZIP:</b> vários arquivos guardados dentro de um só.</li>
+      <li><b>Ganho:</b> o volume com que o microfone grava.</li>
+      <li><b>Corte:</b> tirar o silêncio que sobra antes e depois da fala.</li>
+    </ul>
+  </div>
+</dialog>
+
+<!-- CRIANÇA -->
+<dialog id="crianca" class="peq">
+  <div class="dcab"><h2>Adicionar criança</h2><button class="btn mini" data-fechar>Cancelar</button></div>
+  <form class="dcorpo" id="crForm" method="dialog">
+    <label class="campo"><span>Apelido</span><input type="text" id="crNome" maxlength="20" required>
+      <small>Use um apelido, não o nome completo. Ele entra no nome dos arquivos.</small></label>
+    <label class="campo"><span>Idade</span><input type="number" id="crIdade" min="3" max="14" required></label>
+    <label class="liga"><input type="checkbox" id="crOk" required><span><b>O responsável autorizou a gravação</b>
+      <small>A voz da criança será usada só para ajustar o jogo e não será publicada.</small></span></label>
+    <div class="rodape"><button class="btn pri" value="ok">Adicionar</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+'use strict';
+/* ===================== utilidades ===================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const IC={
+ mic:'<path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+ play:'<path d="M7 4l13 8-13 8z" fill="currentColor"/>',
+ stop:'<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
+ check:'<path d="M4 12.5l5 5L20 6.5"/>',
+ down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+ edit:'<path d="M4 20l1-4L16 5l3 3L8 19z"/>',
+ trash:'<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>',
+ redo:'<path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17v.5"/>',
+ list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+ left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
+ cam:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ save:'<path d="M5 4h11l3 3v13H5zM8 4v5h7M8 20v-6h8v6"/>',
+ up:'<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>',
+ dot:'<circle cx="12" cy="12" r="6" fill="currentColor"/>'
+};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+const sslug=s=>slug(String(s).toLowerCase().replace(/é/g,'eh').replace(/ó/g,'oh'));
+const seg=t=>t.toFixed(1).replace('.',',')+' s';
+let toastT; function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
+function baixar(blob,nome){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),20000)}
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+
+/* ===================== conteúdo ===================== */
+const P=s=>s.split(',').map(x=>{const[w,sil]=x.trim().split('|');return{w,s:sil}});
+const DEF={
+ A:[['Tepe entre vogais','ra re ré rei ri ro ru rão ran rim'],['Som do L','la lo lão'],['Encontros com P','pra pre pré pri prin prai'],
+    ['Encontros com B','bra bru brin'],['Encontros com T','tre tri tro trem três'],['Encontros com D','dra dro'],
+    ['Encontros com C','cra cre cruz'],['Encontros com G','gra gre gru'],['Encontros com F','fru fran fre']]
+    .flatMap(([g,l])=>l.split(' ').map(t=>({g,t}))),
+ B:P('pera|pe-RA,peru|pe-RU,siri|si-RI,touro|tou-RO,muro|mu-RO,cera|ce-RA,feira|fei-RA,ouro|ou-RO,arara|a-RA-RA,amora|a-mo-RA,cenoura|ce-nou-RA,tesoura|te-sou-RA,vassoura|vas-sou-RA,cadeira|ca-dei-RA,madeira|ma-dei-RA,mamadeira|ma-ma-dei-RA,bandeira|ban-dei-RA,xícara|xí-ca-RA,canguru|can-gu-RU,jacaré|ja-ca-RÉ,besouro|be-sou-RO,chuveiro|chu-vei-RO,banheiro|ba-nhei-RO,bombeiro|bom-bei-RO,dinheiro|di-nhei-RO,tubarão|tu-ba-RÃO'),
+ C:P('barata|ba-RA-ta,pirata|pi-RA-ta,girafa|gi-RA-fa,coruja|co-RU-ja,coroa|co-RO-a,sereia|se-REI-a,areia|a-REI-a,morango|mo-RAN-go,buraco|bu-RA-co,cereja|ce-RE-ja,parede|pa-RE-de,farinha|fa-RI-nha,xarope|xa-RO-pe,peruca|pe-RU-ca,aranha|a-RA-nha,piranha|pi-RA-nha,periquito|pe-RI-qui-to,parafuso|pa-RA-fu-so,mariposa|ma-RI-po-sa,garoto|ga-RO-to,furacão|fu-RA-cão,coração|co-RA-ção,carimbo|ca-RIM-bo,guaraná|gua-RA-ná,careca|ca-RÉ-ca,curativo|cu-RA-ti-vo,urubu|u-RU-bu'),
+ D:[...P('bola|bo-LA,bala|ba-LA,mala|ma-LA,vela|ve-LA,cola|co-LA,sala|sa-LA,mola|mo-LA,tela|te-LA,fila|fi-LA,vila|vi-LA,janela|ja-ne-LA,panela|pa-ne-LA,salada|sa-LA-da,galo|ga-LO,gelo|ge-LO,pulo|pu-LO,bolo|bo-LO,cavalo|ca-va-LO,balão|ba-LÃO,pilão|pi-LÃO').map(e=>({...e,g:'Palavras com L'})),
+    ...P('barão|ba-RÃO,pirão|pi-RÃO,cela|ce-LA,vara|va-RA,vala|va-LA,caro|ca-RO,calo|ca-LO,coro|co-RO,colo|co-LO,sarada|sa-RA-da,puro|pu-RO,cara|ca-RA,cala|ca-LA,tora|to-RA,tola|to-LA').map(e=>({...e,g:'Pares R x L (palavras novas)'})),
+    ...P('caracol|ca-RA-col,pirulito|pi-RU-li-to,amarelo|a-ma-RÉ-lo,coleira|co-lei-RA,geladeira|ge-la-dei-RA').map(e=>({...e,g:'Palavras com os dois sons'}))],
+ E:P('prato|PRA-to,presente|PRE-sen-te,princesa|PRIN-ce-sa,prego|PRÉ-go,praia|PRAI-a,primo|PRI-mo,braço|BRA-ço,bruxa|BRU-xa,brinco|BRIN-co,cobra|co-BRA,zebra|ze-BRA,cabra|ca-BRA,trem|TREM,três|TRÊS,trevo|TRE-vo,troféu|TRO-féu,trigo|TRI-go,quatro|qua-TRO,dragão|DRA-gão,pedra|pe-DRA,vidro|vi-DRO,quadro|qua-DRO,cravo|CRA-vo,cruz|CRUZ,creme|CRE-me,gruta|GRU-ta,grama|GRA-ma,tigre|ti-GRE,fruta|FRU-ta,frango|FRAN-go,cofre|co-FRE'),
+ F:[
+  ['Instruções do exercício',[['escute','Escute.'],['sua_vez','Agora é a sua vez.'],['fale_silaba','Fale a sílaba.'],['fale_palavra','Fale a palavra.'],['mais_uma','Mais uma vez.'],['prepare','Prepare-se.'],['contagem','Três, dois, um.'],['pode_falar','Pode falar.'],['nao_ouvi','Não ouvi. Vamos tentar de novo?'],['treinar','Vamos treinar?'],['microfone','Para falar, precisamos do microfone. Peça ajuda a um adulto.'],['pegue','Pegue a folha:','O jogo completa com a gravação da palavra']]],
+  ['Mensagens de incentivo',[['n10_a','Incrível!','10 pontos'],['n10_b','Perfeito!','10 pontos'],['n10_c','Que R lindo!','10 pontos, só em palavras com R'],['n5_a','Quase lá!','5 pontos'],['n5_b','Muito bem, está chegando!','5 pontos'],['n5_c','Boa! Só mais um pouquinho.','5 pontos'],['n2_a','Boa tentativa!','2 pontos'],['n2_b','Valeu o esforço!','2 pontos'],['n2_c','Continue assim, você consegue!','2 pontos'],['treino_a','Treino completo! Mais cinco pontos.','Fim do treino'],['treino_b','Você treinou direitinho!','Fim do treino']]],
+  ['Menus',[['titulo','Pistas do R Vibrante.'],['escolha_pista','Escolha a pista.'],['pista1','Pista um: R no fim da palavra.'],['pista2','Pista dois: R no meio da palavra.'],['pista3','Pista três: portais do R e do L.'],['pista4','Pista quatro: R junto de outra consoante.'],['escolha_nivel','Escolha o nível.'],['facil','Fácil.'],['normal','Normal.'],['dificil','Difícil.'],['preparar','Vamos preparar o jogo.'],['ajuda1','Mova o besourinho para os lados e leve a bola de papel até as folhas.'],['ajuda2','Cuidado com os trituradores e os fósforos.'],['ajuda3','A estrela azul deixa tudo mais rápido e a poção protege a bola.']]],
+  ['Durante o jogo',[['largada','Um, dois, três e já!','Início da pista'],['continuar','Vamos continuar!','Volta do exercício'],['cuidado','Cuidado!','Triturador ou fósforo à frente'],['portal_r','Agora é o som do R.','Portal R'],['portal_l','Agora é o som do L.','Portal L'],['vitoria_a','Você chegou! Parabéns!','Linha de chegada'],['vitoria_b','Olha o tamanho da sua bola!','Tela de vitória'],['derrota','A bola acabou. Vamos tentar de novo?','Tela de derrota']]]
+ ].flatMap(([g,l])=>l.map(([code,t,q])=>({g,code,t,q}))),
+ G:[['barata','balata','ba-ata'],['pirata','pilata','pi-ata'],['girafa','gilafa','gi-afa'],['arara','alala','a-a-a'],['amora','amola','amo-a'],['pera','pela','pe-a'],['muro','mulo','mu-o'],['siri','sili','si-i'],['coruja','coluja','co-uja'],['jacaré','jacalé','jaca-é']].map(([w,l,sem])=>({w,l,sem})),
+ V:'ra re ri ro ru la lo pra bra tra cra fra'.split(' ').map(t=>({t})),
+ K:[]
+};
+const BLOCOS=[
+ {id:'G',kind:'cal',nome:'Calibração',pasta:'bloco_G_calibracao',tag:'Comece por aqui',desc:'Cada palavra é dita de três formas, três vezes cada: correta, trocando o R por L e sem o R. Essas gravações não entram no jogo; servem para ensinar o jogo a reconhecer o R.'},
+ {id:'F',kind:'fr',nome:'Frases',pasta:'bloco_F_frases',desc:'Instruções, mensagens de incentivo e narração, em tom animado e acolhedor. Você pode trocar qualquer texto pelo jeito que costuma falar com as crianças.'},
+ {id:'A',kind:'sil',nome:'Sílabas',pasta:'bloco_A_silabas',desc:'Cada sílaba é gravada duas vezes: falada uma vez e repetida três vezes com pausa curta.'},
+ {id:'B',kind:'pal',nome:'Pista 1 · R no fim',pasta:'bloco_B_pista1',desc:'Cada palavra é gravada duas vezes: silabada, devagar e com a sílaba do R bem marcada, e depois em fala normal.'},
+ {id:'C',kind:'pal',nome:'Pista 2 · R no meio',pasta:'bloco_C_pista2',desc:'Cada palavra é gravada duas vezes: silabada e em fala normal.'},
+ {id:'D',kind:'pal',nome:'Pista 3 · Portais R x L',pasta:'bloco_D_pista3',desc:'Palavras com L, pares que mudam só do R para o L e palavras com os dois sons. Cada uma silabada e em fala normal.'},
+ {id:'E',kind:'pal',nome:'Pista 4 · Encontros',pasta:'bloco_E_pista4',desc:'Palavras com o R junto de outra consoante. Cada uma silabada e em fala normal.'},
+ {id:'V',kind:'vid',nome:'Vídeos da boquinha',pasta:'videos_boquinha',desc:'Vídeo curto da boca falando a sílaba devagar, três vezes, voltando ao repouso entre uma e outra. A tela mostra onde encaixar a boca e quando falar.'},
+ {id:'K',kind:'cri',opc:true,nome:'Vozes de crianças',pasta:'calibracao_criancas',desc:'Bloco opcional. O jogo vai aprender a voz de cada criança durante o uso, então não é preciso gravar várias crianças aqui. Se houver uma criança disponível, uma ou duas gravações ajudam a testar o jogo antes do lançamento: ela diz dez palavras e você dá a nota de cada uma.'}
+];
+const BL=Object.fromEntries(BLOCOS.map(b=>[b.id,b]));
+
+/* ===================== estado e banco ===================== */
+let db; const T=new Map();
+let M={edits:{},removed:[],added:{},kids:[]};
+let S={mic:'',cam:'',ganho:1,auto:true,folga:1.5,prox:true,cont:false};
+let blocoAtual='G', soFalta=false;
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('estudio-r-vibrante',1);
+  r.onupgradeneeded=()=>{r.result.createObjectStore('takes',{keyPath:'id'});r.result.createObjectStore('meta')};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+const st=(n,m='readonly')=>db.transaction(n,m).objectStore(n);
+const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const metaSet=(k,v)=>rq(st('meta','readwrite').put(v,k));
+const saveM=()=>metaSet('conteudo',M), saveS=()=>metaSet('ajustes',S);
+async function takePut(t){T.set(t.id,t);await rq(st('takes','readwrite').put(t))}
+async function takeDel(id){T.delete(id);await rq(st('takes','readwrite').delete(id))}
+
+/* ===================== itens ===================== */
+function entradas(bid){
+  if(bid==='K') return M.kids.flatMap(k=>DEF.G.map((c,i)=>({id:'K.'+k.id+'.'+i,kid:k,w:c.w,g:k.apelido+' · '+k.idade+' anos'})));
+  const base=DEF[bid].map((e,i)=>({...e,id:bid+'.'+i})).concat(M.added[bid]||[]);
+  return base.filter(e=>!M.removed.includes(e.id)).map(e=>({...e,...(M.edits[e.id]||{})}));
+}
+const tresX=t=>[t,t,t].join(', ');
+function itensDe(e,b){
+  const mk=(v,o)=>({id:e.id+':'+v,v,e,b,kind:b.kind==='vid'?'video':'audio',...o});
+  switch(b.kind){
+   case 'sil':return[mk('1',{rot:'Sílaba, uma vez',text:e.t,file:'sil_'+sslug(e.t)+'_1',est:2}),
+                     mk('3',{rot:'Sílaba, três vezes',text:tresX(e.t),file:'sil_'+sslug(e.t)+'_3',est:4.5,dica:'Com uma pausa curta entre elas'})];
+   case 'pal':return[mk('s',{rot:'Palavra silabada',text:e.s,sil:true,file:'pal_'+slug(e.w)+'_s',est:2+0.9*e.s.split('-').length,dica:'Devagar, com a sílaba destacada bem marcada'}),
+                     mk('n',{rot:'Palavra em fala normal',text:e.w,file:'pal_'+slug(e.w)+'_n',est:2.5,dica:'Ritmo natural, sem exagerar o R'})];
+   case 'fr': return[mk('f',{rot:'Frase',text:e.t,file:'fr_'+e.code,est:1.5+e.t.length*0.075,dica:e.q||''})];
+   case 'cal':return[mk('ok',{rot:'Forma correta, três vezes',text:tresX(e.w),file:'cal_'+slug(e.w)+'_ok',est:6}),
+                     mk('l',{rot:'Trocando o R por L, três vezes',text:tresX(e.l),file:'cal_'+slug(e.w)+'_l',est:6,dica:'Imite a troca que as crianças fazem'}),
+                     mk('sem',{rot:'Sem o R, três vezes',text:tresX(e.sem),file:'cal_'+slug(e.w)+'_sem',est:6,dica:'Como quem pula o som do R'})];
+   case 'vid':return[mk('v',{rot:'Vídeo da boca',text:e.t,file:'boca_'+sslug(e.t),est:8,dica:'Fale devagar, três vezes, fechando a boca entre uma e outra'})];
+   case 'cri':return[mk('c',{rot:'A criança fala uma vez',text:e.w,file:'cri_'+slug(e.kid.apelido)+'_'+slug(e.w),est:3,nota:true,dica:'Mostre o modelo antes; grave só a voz da criança'})];
+  }
+}
+const itensBloco=bid=>entradas(bid).flatMap(e=>itensDe(e,BL[bid]));
+const feito=i=>T.get(i.id)?.ok===true;
+function nomeArq(i){const t=T.get(i.id);
+  if(i.kind==='video'){const ext=(t?.mime||'').includes('mp4')?'mp4':'webm';return `${i.file}_corte-${(t?.t0||0).toFixed(2)}-${(t?.t1||0).toFixed(2)}.${ext}`}
+  return i.file+(i.nota&&t?.nota?'_n'+t.nota:'')+'.wav'}
+
+/* ===================== lista ===================== */
+function contagem(bid){const l=itensBloco(bid);return[l.filter(feito).length,l.length]}
+function pintaTopo(){let a=0,b=0;BLOCOS.forEach(x=>{const[c,d]=contagem(x.id);a+=c;b+=d});
+  $('#geralTxt').textContent=`${a} de ${b} gravações prontas`;$('#geralBar').style.width=(b?a/b*100:0)+'%'}
+function pintaNav(){
+  $('#nav').innerHTML=BLOCOS.map(b=>{const[a,t]=contagem(b.id);
+    return `<button data-b="${b.id}" aria-current="${b.id===blocoAtual}"><b>${esc(b.nome)}<span>${a}/${t}</span></b>
+      <div class="barra"><i style="width:${t?a/t*100:0}%"></i></div>${b.tag&&a<t?`<span class="tag">${b.tag}</span>`:''}${b.opc?`<span class="tag" style="background:var(--suave);border:1.5px solid var(--linha)">Opcional</span>`:''}${t&&a===t?`<span class="tag" style="background:var(--okbg);color:var(--ok)">Completo</span>`:''}</button>`}).join('');
+  pintaTopo();
+}
+function pintaLista(){
+  const b=BL[blocoAtual], ents=entradas(b.id), itens=ents.flatMap(e=>itensDe(e,b));
+  const prontos=itens.filter(feito).length;
+  let h=`<h2>${esc(b.nome)}</h2><p class="desc">${esc(b.desc)}</p><div class="ferr">
+    <button class="btn pri" id="lGravar" ${prontos===itens.length?'disabled':''}>${ic(b.kind==='vid'?'cam':'mic')} Gravar o que falta</button>
+    <button class="btn" id="lZip" ${prontos?'':'disabled'}>${ic('down')} Baixar bloco (${prontos})</button>
+    ${b.kind==='cri'?`<button class="btn" id="lKid">${ic('plus')} Adicionar criança</button>`:`<button class="btn" id="lAdd">${ic('plus')} Adicionar item</button>`}
+    <label><input type="checkbox" id="lFalta" ${soFalta?'checked':''}> Mostrar só o que falta</label></div>`;
+  if(!ents.length) h+=`<div class="vazio">${b.kind==='cri'?'Nenhuma criança ainda. Clique em "Adicionar criança" para começar.':'Nenhum item neste bloco.'}</div>`;
+  let g=null;
+  for(const e of ents){
+    const its=itensDe(e,b).filter(i=>!soFalta||!feito(i)); if(!its.length) continue;
+    if(e.g&&e.g!==g){g=e.g;h+=`<h3 class="grupo">${esc(g)}${b.kind==='cri'?` <button class="btn mini" data-delkid="${e.kid.id}">${ic('trash')} Remover criança</button>`:''}</h3>`}
+    const tit=b.kind==='fr'?e.code:(e.w||e.t);
+    h+=`<div class="entrada"><div class="cab"><span>${esc(tit)} ${e.s&&b.kind==='pal'?`<small>· ${esc(e.s)}</small>`:''}</span>
+      ${b.kind==='cri'?'':`<button class="btn mini so-ic" data-ed="${e.id}" aria-label="Editar ${esc(tit)}">${ic('edit')}</button>
+      <button class="btn mini so-ic" data-rm="${e.id}" aria-label="Remover ${esc(tit)}">${ic('trash')}</button>`}</div>`;
+    for(const i of its){const t=T.get(i.id), cls=t?(t.ok?'ok':'rasc'):'', lab=t?(t.ok?'Confirmada':'Gravada, falta confirmar'):'Falta gravar';
+      h+=`<div class="item"><span class="st ${cls}" title="${lab}" aria-label="${lab}">${t?ic(t.ok?'check':'dot'):''}</span>
+       <div class="txt"><b>${esc(i.text)}</b><small>${esc(i.rot)} · <code>${esc(t?nomeArq(i):i.file)}</code>${t?` · ${seg(t.t1-t.t0)}`:''}${t?.nota?` · nota ${t.nota}`:''} · ${lab}</small></div>
+       <div class="bts">${t?`<button class="btn mini so-ic" data-ouvir="${i.id}" aria-label="Ouvir">${ic('play')}</button>`:''}
+        ${t?.ok?`<button class="btn mini so-ic" data-baixar="${i.id}" aria-label="Baixar arquivo">${ic('down')}</button>`:''}
+        <button class="btn mini ${t?'':'pri'}" data-abrir="${i.id}">${t?'Abrir':ic(i.kind==='video'?'cam':'mic')+' Gravar'}</button></div></div>`}
+    h+='</div>';
+  }
+  $('#lista').innerHTML=h;
+}
+function pinta(){pintaNav();pintaLista()}
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;blocoAtual=b.dataset.b;pinta();window.scrollTo({top:0})};
+let tocando=null;
+$('#lista').onclick=async e=>{
+  const b=e.target.closest('button'); if(!b){return}
+  const d=b.dataset, itens=itensBloco(blocoAtual);
+  if(b.id==='lGravar'){const i=itens.find(x=>!feito(x));if(i)abreEstudio(i.id)}
+  else if(b.id==='lZip')zipBloco(blocoAtual);
+  else if(b.id==='lAdd')abreEditar(null);
+  else if(b.id==='lKid'){$('#crForm').reset();$('#crianca').showModal()}
+  else if(d.abrir)abreEstudio(d.abrir);
+  else if(d.ed)abreEditar(d.ed);
+  else if(d.rm){if(confirm('Remover este item da lista? As gravações dele também serão apagadas.')){
+      for(const i of itens.filter(x=>x.e.id===d.rm))await takeDel(i.id);
+      if(d.rm.includes('.u'))M.added[blocoAtual]=(M.added[blocoAtual]||[]).filter(x=>x.id!==d.rm);else M.removed.push(d.rm);
+      await saveM();pinta()}}
+  else if(d.delkid){if(confirm('Remover esta criança e todas as gravações dela?')){
+      for(const i of itens.filter(x=>x.e.kid.id===d.delkid))await takeDel(i.id);
+      M.kids=M.kids.filter(k=>k.id!==d.delkid);await saveM();pinta()}}
+  else if(d.baixar){const i=itens.find(x=>x.id===d.baixar);baixar(await exporta(i),nomeArq(i))}
+  else if(d.ouvir){const i=itens.find(x=>x.id===d.ouvir);if(i.kind==='video'){abreEstudio(i.id);return}
+      if(tocando){tocando.pause();tocando=null}
+      tocando=new Audio(URL.createObjectURL(await exporta(i)));tocando.play()}
+};
+$('#lista').onchange=e=>{if(e.target.id==='lFalta'){soFalta=e.target.checked;pintaLista()}};
+
+/* ===================== editar ===================== */
+let edAlvo=null;
+function abreEditar(id){
+  const b=BL[blocoAtual], e=id?entradas(b.id).find(x=>x.id===id):{};
+  edAlvo=id; $('#edTit').textContent=id?'Editar item':'Adicionar item';
+  const c=(k,l,v,d)=>`<label class="campo"><span>${l}</span><input type="text" name="${k}" value="${esc(v||'')}" required>${d?`<small>${d}</small>`:''}</label>`;
+  let h='';
+  if(b.kind==='pal')h=c('w','Palavra',e.w)+c('s','Fala silabada',e.s,'Separe as sílabas com hífen e escreva a sílaba alvo em MAIÚSCULAS. Exemplo: ba-RA-ta');
+  else if(b.kind==='sil'||b.kind==='vid')h=c('t','Sílaba',e.t);
+  else if(b.kind==='fr')h=`<label class="campo"><span>Texto da frase</span><textarea name="t" rows="3" required>${esc(e.t||'')}</textarea></label>`;
+  else if(b.kind==='cal')h=c('w','Palavra correta',e.w)+c('l','Com troca por L',e.l)+c('sem','Sem o R',e.sem);
+  $('#edCampos').innerHTML=h;
+  const tem=id&&itensDe(e,b).some(i=>T.has(i.id));
+  $('#edAviso').textContent=tem?'Este item já tem gravação. Ao salvar uma mudança, a gravação antiga é apagada e precisa ser refeita.':'';
+  $('#editar').showModal();
+}
+$('#edForm').onsubmit=async ev=>{
+  ev.preventDefault();
+  const b=BL[blocoAtual], v=Object.fromEntries([...new FormData($('#edForm'))].map(([k,x])=>[k,String(x).trim()]));
+  if(edAlvo){const e=entradas(b.id).find(x=>x.id===edAlvo);
+    if(Object.keys(v).some(k=>v[k]!==e[k])){for(const i of itensDe(e,b))if(T.has(i.id))await takeDel(i.id);
+      if(edAlvo.includes('.u')){Object.assign(M.added[b.id].find(x=>x.id===edAlvo),v)}else M.edits[edAlvo]={...(M.edits[edAlvo]||{}),...v}}
+  }else{const n={id:b.id+'.u'+Date.now().toString(36),g:'Itens adicionados',...v};
+    if(b.kind==='fr')n.code=slug(v.t).slice(0,24)||('extra_'+Date.now().toString(36));
+    (M.added[b.id]=M.added[b.id]||[]).push(n)}
+  await saveM();$('#editar').close();pinta();
+};
+$('#crForm').onsubmit=async ev=>{ev.preventDefault();
+  M.kids.push({id:Date.now().toString(36),apelido:$('#crNome').value.trim(),idade:+$('#crIdade').value});
+  await saveM();$('#crianca').close();pinta()};
+
+/* ===================== áudio ===================== */
+const AU={ctx:null,stream:null,src:null,gain:null,node:null,mudo:null,gravando:false,chunks:[],vivo:[],pico:0,usos:0};
+const WORKLET=`class Cap extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(2048);this.n=0}
+ process(i){const c=i[0][0];if(c){for(let k=0;k<c.length;k++){this.b[this.n++]=c[k];if(this.n===2048){this.port.postMessage(this.b.slice(0));this.n=0}}}return true}}
+ registerProcessor('cap',Cap)`;
+function onChunk(f){
+  let s=0,p=0;for(let k=0;k<f.length;k++){const a=Math.abs(f[k]);s+=a*a;if(a>p)p=a}
+  AU.pico=Math.max(p,AU.pico*0.85);AU.vivo.push(Math.sqrt(s/f.length));if(AU.vivo.length>600)AU.vivo.shift();
+  if(AU.gravando)AU.chunks.push(f);
+}
+async function abreMic(){
+  fechaMic();
+  const base={echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1};
+  try{AU.stream=await navigator.mediaDevices.getUserMedia({audio:{...base,...(S.mic?{deviceId:{exact:S.mic}}:{})}})}
+  catch(e){if(S.mic){S.mic='';AU.stream=await navigator.mediaDevices.getUserMedia({audio:base})}else throw e}
+  if(!AU.ctx){try{AU.ctx=new AudioContext({sampleRate:48000})}catch(e){AU.ctx=new AudioContext()}}
+  if(AU.ctx.state==='suspended')await AU.ctx.resume();
+  const c=AU.ctx; AU.src=c.createMediaStreamSource(AU.stream);
+  AU.gain=c.createGain();AU.gain.gain.value=S.ganho;AU.gain.channelCount=1;AU.gain.channelCountMode='explicit';
+  AU.mudo=c.createGain();AU.mudo.gain.value=0;
+  try{if(!AU.wk){await c.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET],{type:'application/javascript'})));AU.wk=true}
+      AU.node=new AudioWorkletNode(c,'cap',{numberOfInputs:1,numberOfOutputs:1,channelCount:1,channelCountMode:'explicit'});AU.node.port.onmessage=e=>onChunk(e.data)}
+  catch(e){AU.node=c.createScriptProcessor(2048,1,1);AU.node.onaudioprocess=ev=>onChunk(new Float32Array(ev.inputBuffer.getChannelData(0)))}
+  AU.src.connect(AU.gain);AU.gain.connect(AU.node);AU.node.connect(AU.mudo);AU.mudo.connect(c.destination);
+  listaDisp();
+}
+function fechaMic(){if(AU.stream){AU.stream.getTracks().forEach(t=>t.stop());AU.stream=null}
+  try{AU.src&&AU.src.disconnect();AU.gain&&AU.gain.disconnect();AU.node&&AU.node.disconnect()}catch(e){}
+  AU.src=AU.gain=AU.node=null;AU.pico=0}
+async function usaMic(){AU.usos++;if(!AU.stream)await abreMic()}
+function soltaMic(){AU.usos=Math.max(0,AU.usos-1);if(!AU.usos)fechaMic()}
+function wavBlob(i16,rate){const n=i16.length*2,b=new ArrayBuffer(44+n),v=new DataView(b);
+  const w=(o,s)=>{for(let k=0;k<s.length;k++)v.setUint8(o+k,s.charCodeAt(k))};
+  w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n,true);
+  new Int16Array(b,44).set(i16);return new Blob([b],{type:'audio/wav'})}
+async function wavLe(blob){const b=await blob.arrayBuffer(),v=new DataView(b);return{rate:v.getUint32(24,true),pcm:new Int16Array(b,44,(b.byteLength-44)>>1)}}
+function sugereCorte(pcm,rate){
+  const fr=Math.round(rate*0.01),n=Math.floor(pcm.length/fr),r=new Float32Array(n);let pk=0;
+  for(let i=0;i<n;i++){let s=0;for(let k=i*fr;k<(i+1)*fr;k++){const a=pcm[k]/32768;s+=a*a}r[i]=Math.sqrt(s/fr);if(r[i]>pk)pk=r[i]}
+  const dur=pcm.length/rate; if(!n||pk<0.003)return{t0:0,t1:dur,mudo:true};
+  const ord=Float32Array.from(r).sort(),piso=ord[Math.floor(n*0.1)],lim=Math.max(piso*2.5,pk*0.06,0.003);
+  let a=0,z=n-1;while(a<n&&r[a]<lim)a++;while(z>a&&r[z]<lim)z--;
+  return{t0:Math.max(0,a*0.01-0.10),t1:Math.min(dur,(z+1)*0.01+0.22),mudo:false};
+}
+async function exporta(i){const t=T.get(i.id);if(i.kind==='video')return t.blob;
+  const{rate,pcm}=await wavLe(t.blob);return wavBlob(pcm.subarray(Math.floor(t.t0*rate),Math.ceil(t.t1*rate)),rate)}
+
+/* ===================== estúdio ===================== */
+const E={lista:[],idx:0,item:null,estado:'fechado',pcm:null,rate:48000,dur:0,t0:0,t1:0,nota:null,ini:0,lim:0,token:0,arr:null,fonte:null,tocaIni:0,vs:null,vrec:null,vurl:null};
+const ed=$('#estudio'), cv=$('#onda'), cx=cv.getContext('2d');
+async function abreEstudio(id){
+  E.lista=itensBloco(blocoAtual);E.idx=Math.max(0,E.lista.findIndex(i=>i.id===id));
+  if(!ed.open)ed.showModal();
+  try{await usaMic()}catch(e){ed.close();toast('Não consegui usar o microfone. Autorize o microfone no navegador e tente de novo.');return}
+  await carrega(false);requestAnimationFrame(quadro);
+}
+ed.addEventListener('close',()=>{cancela();paraVideoStream();soltaMic();E.estado='fechado';pinta()});
+function cancela(){E.token++;AU.gravando=false;paraSom();if(E.vrec&&E.vrec.state!=='inactive'){E.vrec.onstop=null;try{E.vrec.stop()}catch(e){}}}
+async function carrega(autoGravar){
+  cancela();const i=E.item=E.lista[E.idx], t=T.get(i.id);
+  $('#eTitulo').textContent=BL[blocoAtual].nome;$('#ePos').textContent=`${E.idx+1} de ${E.lista.length}`;
+  $('#ePrev').disabled=E.idx===0;$('#eNext').disabled=E.idx===E.lista.length-1;
+  $('#eRot').textContent=i.rot;$('#eDica').textContent=i.dica||'';
+  const f=$('#eFala');f.classList.toggle('longa',i.text.length>26);
+  f.innerHTML=i.sil?i.text.split('-').map(p=>p===p.toUpperCase()&&/[A-ZÀ-Ú]/.test(p)?`<u>${esc(p)}</u>`:esc(p)).join('<span style="opacity:.35"> · </span>'):esc(i.text);
+  const v=i.kind==='video';$('#paneAudio').hidden=v;$('#paneVideo').hidden=!v;$('#eNivel').hidden=v;
+  $('#eNotas').hidden=true;E.nota=t?.nota||null;msg('');
+  if(v){await preparaVideo();if(t){E.dur=t.dur;E.t0=t.t0;E.t1=t.t1;revisaVideo(t.blob)}else pronto()}
+  else{paraVideoStream();if(t){const w=await wavLe(t.blob);E.pcm=w.pcm;E.rate=w.rate;E.dur=w.pcm.length/w.rate;E.t0=t.t0;E.t1=t.t1;revisa()}else pronto()}
+  if(autoGravar&&!t)grava();
+}
+function msg(m,boa){const e=$('#eMsg');e.hidden=!m;e.textContent=m||'';e.classList.toggle('boa',!!boa)}
+function botoes(l){$('#eCtl').innerHTML=l.map(([id,cls,icn,txt,dis])=>`<button class="btn grande ${cls}" data-a="${id}" ${dis?'disabled':''}>${ic(icn)} ${txt}</button>`).join('')}
+function limite(){return S.auto?E.item.est+S.folga:60}
+function pintaTempo(dec){const L=limite();$('#eTempo').hidden=false;$('#eRelogio').textContent=seg(dec);
+  $('#eBarra').style.width=Math.min(100,dec/L*100)+'%';$('#eMarca').style.left=(S.auto?E.item.est/L*100:100)+'%';$('#eMarca').hidden=!S.auto;
+  $('#eLimite').textContent=S.auto?'para em '+seg(L):'pare quando quiser'}
+function pronto(){E.estado='pronto';pintaTempo(0);$('#eCorte').hidden=true;$('#faixas').hidden=true;$('#guia').hidden=false;$('#deixa').hidden=E.item.kind!=='video';deixa(-1);
+  botoes([['gravar','rec',E.item.kind==='video'?'cam':'mic','Gravar']])}
+async function grava(){
+  if(E.estado==='conta'||E.estado==='gravando')return;
+  cancela();const tk=E.token;E.estado='conta';msg('');$('#eNotas').hidden=true;$('#eCorte').hidden=true;$('#faixas').hidden=true;
+  if(E.item.kind==='video'){await preparaVideo();if(tk!==E.token)return;$('#guia').hidden=false;$('#deixa').hidden=false}
+  botoes([['cancelar','','stop','Cancelar']]);pintaTempo(0);
+  const c=E.item.kind==='video'?$('#contaV'):$('#contaA');c.hidden=false;
+  for(const n of['3','2','1']){c.textContent=n;await new Promise(r=>setTimeout(r,650));if(tk!==E.token){c.hidden=true;return}}
+  c.hidden=true;E.estado='gravando';E.ini=performance.now();E.lim=limite();
+  if(E.item.kind==='video'){const ch=[];E.vrec=novoRec(E.vs);E.vrec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+    E.vrec.onstop=()=>fimVideo(new Blob(ch,{type:E.vrec.mimeType}),(performance.now()-E.ini)/1000);E.vrec.start(250)}
+  else{AU.chunks=[];AU.gravando=true}
+  botoes([['parar','rec','stop','Parar']]);
+}
+function para(){if(E.estado!=='gravando')return;
+  if(E.item.kind==='video'){E.estado='salvando';E.vrec.stop();return}
+  AU.gravando=false;const n=AU.chunks.reduce((a,c)=>a+c.length,0),pcm=new Int16Array(n);let o=0,pk=0;
+  for(const c of AU.chunks)for(let k=0;k<c.length;k++){const x=Math.max(-1,Math.min(1,c[k]));const a=Math.abs(x);if(a>pk)pk=a;pcm[o++]=x<0?x*32768:x*32767}
+  AU.chunks=[];E.pcm=pcm;E.rate=AU.ctx.sampleRate;E.dur=n/E.rate;
+  const s=sugereCorte(pcm,E.rate);E.t0=s.t0;E.t1=s.t1;E.nota=null;
+  salva(false,wavBlob(pcm,E.rate),'audio/wav');revisa();
+  if(s.mudo)msg('Não ouvi som nesta gravação. Confira o microfone nos Ajustes e grave de novo.');
+  else if(pk>=0.985)msg('O som ficou alto demais e pode ter distorcido. Diminua o ganho nos Ajustes ou afaste um pouco o microfone.');
+  else if(pk<0.06)msg('O som ficou muito baixo. Aumente o ganho nos Ajustes ou chegue mais perto do microfone.');
+}
+async function salva(ok,blob,mime,extra){const a=T.get(E.item.id)||{};
+  await takePut({...a,...(extra||{}),id:E.item.id,kind:E.item.kind,blob:blob||a.blob,mime:mime||a.mime,dur:E.dur,t0:E.t0,t1:E.t1,ok,nota:E.nota,em:Date.now(),texto:E.item.text});pintaTopo()}
+function revisa(){E.estado='revisao';E.arr=null;$('#eTempo').hidden=true;$('#eCorte').hidden=false;pintaCorte();
+  $('#eNotas').hidden=!E.item.nota;pintaNotas();botoesRev()}
+function botoesRev(){const t=T.get(E.item.id),falta=E.item.nota&&!E.nota;
+  botoes([['ouvir','','play','Ouvir'],['regravar','','redo','Regravar'],['confirmar','ok','check',t?.ok?'Confirmada':'Confirmar',falta],['baixar','','down','Baixar',!t?.ok]])}
+function pintaCorte(){$('#eCorte').textContent=`Arraste as alças para cortar · duração final ${seg(E.t1-E.t0)} (gravado ${seg(E.dur)})`}
+function pintaNotas(){$$('#eNotas button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.nota===E.nota)))}
+$('#eNotas').onclick=e=>{const b=e.target.closest('button');if(!b)return;E.nota=+b.dataset.nota;pintaNotas();salva(T.get(E.item.id)?.ok||false);botoesRev()};
+function paraSom(){if(E.fonte){try{E.fonte.onended=null;E.fonte.stop()}catch(e){}E.fonte=null}const v=$('#vid');if(E.vurl&&!v.paused)v.pause()}
+function ouve(){
+  if(E.item.kind==='video'){const v=$('#vid');if(!v.paused){v.pause();return}v.currentTime=E.t0;v.muted=false;v.play();return}
+  if(E.fonte){paraSom();return}
+  const c=AU.ctx,a=Math.floor(E.t0*E.rate),z=Math.ceil(E.t1*E.rate),buf=c.createBuffer(1,Math.max(1,z-a),E.rate),d=buf.getChannelData(0);
+  for(let k=0;k<d.length;k++)d[k]=E.pcm[a+k]/32768;
+  E.fonte=c.createBufferSource();E.fonte.buffer=buf;E.fonte.connect(c.destination);E.tocaIni=c.currentTime;E.fonte.onended=()=>{E.fonte=null};E.fonte.start();
+}
+async function confirma(){
+  if(E.estado!=='revisao')return; if(E.item.nota&&!E.nota){msg('Escolha a nota antes de confirmar.');return}
+  paraSom();await salva(true);toast('Gravação confirmada');
+  if(S.prox){let n=-1;for(let k=1;k<=E.lista.length;k++){const j=(E.idx+k)%E.lista.length;if(!feito(E.lista[j])){n=j;break}}
+    if(n<0){botoesRev();msg('Bloco completo. Feche o estúdio e clique em "Baixar bloco" para gerar o arquivo de entrega.',true);return}
+    E.idx=n;await carrega(S.cont)}
+  else botoesRev();
+}
+$('#eCtl').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+  if(a==='gravar'||a==='regravar')grava();else if(a==='parar')para();else if(a==='cancelar'){cancela();const t=T.get(E.item.id);t?carrega(false):pronto();$('#contaA').hidden=$('#contaV').hidden=true}
+  else if(a==='ouvir')ouve();else if(a==='confirmar')confirma();else if(a==='baixar')baixar(await exporta(E.item),nomeArq(E.item))};
+$('#ePrev').onclick=()=>{if(E.idx>0){E.idx--;carrega(false)}};
+$('#eNext').onclick=()=>{if(E.idx<E.lista.length-1){E.idx++;carrega(false)}};
+$('#eLista').innerHTML=ic('list')+' Ver lista';$('#eLista').onclick=()=>ed.close();
+$('#ePrev').innerHTML=ic('left');$('#eNext').innerHTML=ic('right');
+document.addEventListener('keydown',e=>{
+  if(!ed.open||$$('dialog[open]').length>1)return; if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&e.target.type!=='range')return;
+  const k=e.key;
+  if(k===' '){e.preventDefault();if(E.estado==='gravando')para();else if(E.estado==='pronto'||E.estado==='revisao')grava()}
+  else if(k==='Enter'&&E.estado==='revisao'){e.preventDefault();confirma()}
+  else if((k==='o'||k==='O')&&E.estado==='revisao')ouve();
+  else if((k==='r'||k==='R')&&E.estado==='revisao')grava();
+  else if(k==='ArrowLeft'&&e.target.type!=='range'&&E.estado!=='gravando')$('#ePrev').click();
+  else if(k==='ArrowRight'&&e.target.type!=='range'&&E.estado!=='gravando')$('#eNext').click();
+});
+document.addEventListener('keyup',e=>{if(ed.open&&e.key===' '&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))e.preventDefault()});
+/* onda */
+function nivel(elI,elT){const p=AU.pico,pos=Math.min(1,Math.sqrt(p));elI.style.left=`calc(${pos*100}% - 3px)`;
+  elT.textContent=p<0.01?'sem som':p<0.12?'baixo':p<0.72?'bom':'alto demais'}
+function quadro(){
+  if(ed.open||$('#ajustes').open)requestAnimationFrame(quadro);
+  if($('#ajustes').open)nivel($('#nivelS'),$('#nivelST'));
+  if(!ed.open)return; nivel($('#nivelI'),$('#nivelT'));
+  if(E.estado==='gravando'){const d=(performance.now()-E.ini)/1000;pintaTempo(d);if(E.item.kind==='video')deixa(d);if(d>=E.lim){para();return}}
+  if(E.item?.kind==='video')return;
+  const W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);
+  if(E.estado==='revisao'&&E.pcm){
+    if(!E.arr){E.arr=new Float32Array(W*2);const pp=E.pcm.length/W;for(let x=0;x<W;x++){let mn=0,mx=0;const a=Math.floor(x*pp),z=Math.max(a+1,Math.floor((x+1)*pp));
+      for(let k=a;k<z;k+=Math.max(1,Math.floor((z-a)/64))){const v=E.pcm[k]/32768;if(v<mn)mn=v;if(v>mx)mx=v}E.arr[x*2]=mn;E.arr[x*2+1]=mx}}
+    const x0=E.t0/E.dur*W,x1=E.t1/E.dur*W;
+    cx.fillStyle='#fff';cx.fillRect(x0,0,x1-x0,H);
+    for(let x=0;x<W;x+=3){const mn=E.arr[x*2],mx=E.arr[x*2+1],h=Math.max(3,(mx-mn)*H*0.48);cx.fillStyle=(x>=x0&&x<=x1)?'#6541a8':'#cfc4dd';cx.fillRect(x,H/2-h/2,2,h)}
+    if(E.fonte){const p=E.t0+(AU.ctx.currentTime-E.tocaIni);cx.fillStyle='#d5264b';cx.fillRect(p/E.dur*W-2,0,4,H)}
+    for(const[x,lab]of[[x0,'início'],[x1,'fim']]){cx.fillStyle='#35264a';cx.fillRect(x-3,0,6,H);const gx=Math.max(24,Math.min(W-24,x));cx.beginPath();cx.roundRect(gx-22,H/2-44,44,88,14);cx.fill();
+      cx.fillStyle='#fff';cx.fillRect(gx-7,H/2-18,4,36);cx.fillRect(gx+3,H/2-18,4,36);
+      cx.fillStyle='#35264a';cx.font='700 26px ui-rounded,system-ui';cx.textAlign=lab==='início'?'left':'right';cx.fillText(lab,x+(lab==='início'?30:-30),34)}
+  }else{
+    const g=E.estado==='gravando',n=Math.floor(W/9),l=AU.vivo.slice(-n);cx.fillStyle=g?'#d5264b':'#cdb8e8';
+    for(let k=0;k<l.length;k++){const h=Math.max(6,Math.min(1,Math.sqrt(l[k])*1.6)*H*0.9);cx.beginPath();cx.roundRect(W-(l.length-k)*9,H/2-h/2,6,h,3);cx.fill()}
+  }
+}
+let arrasta=null;
+const xT=ev=>{const r=cv.getBoundingClientRect();return Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*E.dur};
+cv.onpointerdown=ev=>{if(E.estado!=='revisao')return;const t=xT(ev);arrasta=Math.abs(t-E.t0)<Math.abs(t-E.t1)?'t0':'t1';cv.setPointerCapture(ev.pointerId);cv.onpointermove(ev)};
+cv.onpointermove=ev=>{if(!arrasta)return;const t=xT(ev);if(arrasta==='t0')E.t0=Math.min(t,E.t1-0.1);else E.t1=Math.max(t,E.t0+0.1);pintaCorte()};
+cv.onpointerup=cv.onpointercancel=()=>{if(arrasta){arrasta=null;paraSom();salva(T.get(E.item.id)?.ok||false)}};
+
+/* ===================== vídeo ===================== */
+const vid=$('#vid');
+async function preparaVideo(){
+  if(E.vurl){URL.revokeObjectURL(E.vurl);E.vurl=null;vid.removeAttribute('src');vid.load()}
+  if(!E.vs){const v={width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30},...(S.cam?{deviceId:{exact:S.cam}}:{})};
+    const a={echoCancellation:false,noiseSuppression:false,autoGainControl:false,...(S.mic?{deviceId:{exact:S.mic}}:{})};
+    try{E.vs=await navigator.mediaDevices.getUserMedia({video:v,audio:a})}
+    catch(e){try{E.vs=await navigator.mediaDevices.getUserMedia({video:true,audio:true})}catch(e2){msg('Não consegui usar a câmera. Autorize a câmera no navegador e tente de novo.');throw e2}}
+    listaDisp()}
+  vid.srcObject=E.vs;vid.muted=true;vid.loop=false;vid.ontimeupdate=null;await vid.play().catch(()=>{});
+}
+function paraVideoStream(){if(E.vs){E.vs.getTracks().forEach(t=>t.stop());E.vs=null}vid.srcObject=null;if(E.vurl){URL.revokeObjectURL(E.vurl);E.vurl=null;vid.removeAttribute('src')}}
+function novoRec(s){const m=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));
+  return new MediaRecorder(s,{mimeType:m,videoBitsPerSecond:6e6})}
+function deixa(d){const pts=$$('#deixa i'),t=$('#deixaTxt');let fala=-1;
+  if(d>=0)for(let k=0;k<3;k++){const a=1+k*2.3;if(d>=a&&d<a+1.2)fala=k}
+  pts.forEach((p,k)=>p.classList.toggle('on',d>=1+k*2.3));
+  t.textContent=d<0?'Boca fechada, em repouso':fala>=0?'Fale: '+E.item.text.toUpperCase():'Boca fechada'}
+async function fimVideo(blob,dur){const s=E.vs.getVideoTracks()[0].getSettings();
+  E.dur=dur;E.t0=Math.min(0.5,dur/4);E.t1=Math.max(E.t0+0.5,dur-0.3);E.nota=null;
+  await salva(false,blob,blob.type,{larg:s.width,alt:s.height});revisaVideo(blob)}
+function revisaVideo(blob){E.estado='revisao';$('#eTempo').hidden=true;$('#guia').hidden=true;$('#deixa').hidden=true;$('#faixas').hidden=false;
+  vid.srcObject=null;if(E.vurl)URL.revokeObjectURL(E.vurl);E.vurl=URL.createObjectURL(blob);vid.src=E.vurl;vid.muted=false;
+  vid.onloadedmetadata=()=>{if(!isFinite(vid.duration)){vid.currentTime=1e7;vid.onseeked=()=>{vid.onseeked=null;vid.currentTime=E.t0}}else vid.currentTime=E.t0};
+  vid.ontimeupdate=()=>{if(!vid.paused&&vid.currentTime>=E.t1){vid.pause();vid.currentTime=E.t0}};
+  for(const[id,k]of[['#vIni','t0'],['#vFim','t1']]){const r=$(id);r.max=E.dur.toFixed(2);r.value=E[k]}
+  pintaFaixas();botoesRev()}
+function pintaFaixas(){$('#vIniT').textContent=seg(E.t0);$('#vFimT').textContent=seg(E.t1)}
+$('#vIni').oninput=e=>{E.t0=Math.min(+e.target.value,E.t1-0.3);e.target.value=E.t0;vid.pause();vid.currentTime=E.t0;pintaFaixas()};
+$('#vFim').oninput=e=>{E.t1=Math.max(+e.target.value,E.t0+0.3);e.target.value=E.t1;vid.pause();vid.currentTime=E.t1;pintaFaixas()};
+$('#vIni').onchange=$('#vFim').onchange=()=>salva(T.get(E.item.id)?.ok||false);
+
+/* ===================== ZIP ===================== */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+async function fazZip(arqs){
+  const enc=new TextEncoder(),partes=[],central=[];let off=0;const d=new Date();
+  const hora=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),dia=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  const usados=new Set();
+  for(const a of arqs){let nome=a.nome;for(let k=2;usados.has(nome);k++)nome=a.nome.replace(/(\.[^.\/]+)?$/,`_${k}$1`);usados.add(nome);
+    const dados=new Uint8Array(a.dados instanceof Blob?await a.dados.arrayBuffer():typeof a.dados==='string'?enc.encode(a.dados):a.dados),nb=enc.encode(nome),crc=crc32(dados);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,hora,true);h.setUint16(12,dia,true);
+    h.setUint32(14,crc,true);h.setUint32(18,dados.length,true);h.setUint32(22,dados.length,true);h.setUint16(26,nb.length,true);h.setUint16(28,0,true);
+    partes.push(h.buffer,nb,dados);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,hora,true);c.setUint16(14,dia,true);
+    c.setUint32(16,crc,true);c.setUint32(20,dados.length,true);c.setUint32(24,dados.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+    central.push(c.buffer,nb);off+=30+nb.length+dados.length}
+  const tam=central.reduce((a,x)=>a+x.byteLength,0),f=new DataView(new ArrayBuffer(22));
+  f.setUint32(0,0x06054b50,true);f.setUint16(8,arqs.length,true);f.setUint16(10,arqs.length,true);f.setUint32(12,tam,true);f.setUint32(16,off,true);
+  return new Blob([...partes,...central,f.buffer],{type:'application/zip'})}
+async function leZip(file){
+  const b=await file.arrayBuffer(),v=new DataView(b);let p=b.byteLength-22;while(p>=0&&v.getUint32(p,true)!==0x06054b50)p--;if(p<0)throw new Error('zip');
+  const n=v.getUint16(p+10,true);let o=v.getUint32(p+16,true);const dec=new TextDecoder(),out=new Map();
+  for(let k=0;k<n;k++){const tam=v.getUint32(o+24,true),nl=v.getUint16(o+28,true),el=v.getUint16(o+30,true),cl=v.getUint16(o+32,true),lo=v.getUint32(o+42,true);
+    const nome=dec.decode(new Uint8Array(b,o+46,nl)),ini=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true);
+    out.set(nome,b.slice(ini,ini+tam));o+=46+nl+el+cl}
+  return out}
+async function zipBloco(bid){
+  const b=BL[bid],itens=itensBloco(bid).filter(feito),total=itensBloco(bid).length; if(!itens.length)return;
+  toast('Preparando o arquivo…');const arqs=[],lista=[];
+  for(const i of itens){const t=T.get(i.id),nome=nomeArq(i);arqs.push({nome:b.pasta+'/'+nome,dados:await exporta(i)});
+    const reg={arquivo:nome,texto:i.text,tipo:i.rot,duracao_s:+(t.t1-t.t0).toFixed(3)};
+    if(i.kind==='video')Object.assign(reg,{corte_inicio_s:+t.t0.toFixed(3),corte_fim_s:+t.t1.toFixed(3),duracao_original_s:+t.dur.toFixed(3),largura:t.larg,altura:t.alt,
+      recorte_quadrado:'quadrado central com a altura do vídeo',ffmpeg:`ffmpeg -ss ${t.t0.toFixed(2)} -to ${t.t1.toFixed(2)} -i "${nome}" -an -vf "crop=ih:ih,scale=720:720" -movflags +faststart ${i.file}.mp4`});
+    if(i.nota)Object.assign(reg,{nota:t.nota,apelido:i.e.kid.apelido,idade:i.e.kid.idade,palavra:i.e.w});
+    lista.push(reg)}
+  arqs.push({nome:b.pasta+'/lista.json',dados:JSON.stringify({bloco:b.nome,gerado_em:new Date().toISOString(),confirmados:itens.length,total,itens:lista},null,2)});
+  baixar(await fazZip(arqs),`R-vibrante_${b.pasta}_${hoje()}.zip`);
+  toast(itens.length<total?`Arquivo gerado com ${itens.length} de ${total} gravações. As que faltam podem ir depois.`:'Arquivo gerado com o bloco completo.');
+}
+async function salvaCopia(){
+  $('#cMsg').textContent='Preparando a cópia…';const arqs=[],reg=[];let n=0;
+  for(const t of T.values()){const nome='dados/'+(n++)+(t.kind==='video'?((t.mime||'').includes('mp4')?'.mp4':'.webm'):'.wav');arqs.push({nome,dados:t.blob});const{blob,...r}=t;reg.push({...r,arq:nome})}
+  arqs.push({nome:'estado.json',dados:JSON.stringify({versao:1,conteudo:M,ajustes:S,takes:reg})});
+  baixar(await fazZip(arqs),`R-vibrante_copia-de-seguranca_${hoje()}.zip`);$('#cMsg').textContent=`Cópia gerada com ${reg.length} gravações. Guarde o arquivo em local seguro.`;
+}
+async function restaura(file){
+  try{const z=await leZip(file),e=JSON.parse(new TextDecoder().decode(z.get('estado.json')));
+    if(!confirm(`Esta cópia tem ${e.takes.length} gravações. Substituir o que está nesta página?`))return;
+    await rq(st('takes','readwrite').clear());T.clear();M=e.conteudo;S={...S,...e.ajustes,mic:'',cam:''};await saveM();await saveS();
+    for(const r of e.takes){const{arq,...t}=r;await takePut({...t,blob:new Blob([z.get(arq)],{type:t.mime})})}
+    $('#cMsg').textContent=`Cópia restaurada: ${e.takes.length} gravações.`;pinta();
+  }catch(err){$('#cMsg').textContent='Não consegui ler esse arquivo. Escolha o arquivo de cópia de segurança gerado por esta página.'}
+}
+
+/* ===================== ajustes ===================== */
+async function listaDisp(){
+  const d=await navigator.mediaDevices.enumerateDevices();
+  const op=(k,sel,vazio)=>{const l=d.filter(x=>x.kind===k);return l.length&&l.some(x=>x.label)?l.map((x,n)=>`<option value="${esc(x.deviceId)}" ${x.deviceId===sel?'selected':''}>${esc(x.label||('Aparelho '+(n+1)))}</option>`).join(''):`<option value="">${vazio}</option>`};
+  $('#sMic').innerHTML=op('audioinput',S.mic||AU.stream?.getAudioTracks()[0]?.getSettings().deviceId,'Autorize o microfone para ver a lista');
+  $('#sCam').innerHTML=op('videoinput',S.cam,'A lista aparece depois do primeiro vídeo');
+}
+function pintaAjustes(){$('#sGanho').value=S.ganho;$('#sGanhoT').textContent=S.ganho.toFixed(1).replace('.',',')+' x';$('#sAuto').checked=S.auto;$('#sFolga').value=S.folga;$('#sFolgaT').textContent=seg(S.folga);
+  $('#sProx').checked=S.prox;$('#sCont').checked=S.cont;$('#sFolga').disabled=!S.auto}
+$('#btAjustes').innerHTML=ic('gear')+' Ajustes';$('#btCopia').innerHTML=ic('save')+' Cópia de segurança';$('#btAjuda').innerHTML=ic('help')+' Como usar';
+$('#cSalvar').innerHTML=ic('down')+' Salvar cópia agora';$('#cRest').innerHTML=ic('up')+' Restaurar de um arquivo';
+$('#btAjustes').onclick=async()=>{pintaAjustes();$('#ajustes').showModal();
+  try{await usaMic();requestAnimationFrame(quadro)}catch(e){toast('Autorize o microfone no navegador para testar o som.')}
+  if(navigator.storage?.estimate){const e=await navigator.storage.estimate();$('#sEspaco').textContent=`Espaço usado pelas gravações: ${(e.usage/1048576).toFixed(0)} MB de ${(e.quota/1073741824).toFixed(1)} GB disponíveis neste navegador.`}};
+$('#ajustes').addEventListener('close',()=>{soltaMic();saveS()});
+$('#sGanho').oninput=e=>{S.ganho=+e.target.value;if(AU.gain)AU.gain.gain.value=S.ganho;pintaAjustes()};
+$('#sFolga').oninput=e=>{S.folga=+e.target.value;pintaAjustes()};
+$('#sAuto').onchange=e=>{S.auto=e.target.checked;pintaAjustes()};$('#sProx').onchange=e=>S.prox=e.target.checked;$('#sCont').onchange=e=>S.cont=e.target.checked;
+$('#sMic').onchange=async e=>{S.mic=e.target.value;saveS();try{await abreMic()}catch(err){toast('Não consegui usar esse microfone.')}};
+$('#sCam').onchange=e=>{S.cam=e.target.value;saveS();if(E.vs){E.vs.getTracks().forEach(t=>t.stop());E.vs=null}};
+$('#btCopia').onclick=()=>{$('#cMsg').textContent='';$('#copia').showModal()};
+$('#btAjuda').onclick=()=>$('#ajuda').showModal();
+$('#cSalvar').onclick=salvaCopia;$('#cRest').onclick=()=>$('#cArq').click();
+$('#cArq').onchange=e=>{if(e.target.files[0])restaura(e.target.files[0]);e.target.value=''};
+$$('[data-fechar]').forEach(b=>b.onclick=ev=>{ev.preventDefault();b.closest('dialog').close()});
+navigator.mediaDevices?.addEventListener?.('devicechange',listaDisp);
+
+/* ===================== início ===================== */
+(async()=>{
+  const av=$('#avisoNav'),ua=navigator.userAgent,chrome=/Chrome\//.test(ua)&&!/Edg\//.test(ua);
+  if(!navigator.mediaDevices||!window.isSecureContext){av.hidden=false;av.textContent='Esta página precisa ser aberta pelo endereço publicado (que começa com https) para usar o microfone e a câmera.'}
+  else if(!chrome){av.hidden=false;av.textContent='Para não perder gravações, use sempre o Google Chrome. O que é gravado em um navegador não aparece em outro.'}
+  db=await idbOpen();
+  const m=await rq(st('meta').get('conteudo')),s=await rq(st('meta').get('ajustes'));if(m)M={...M,...m};if(s)S={...S,...s};
+  for(const t of await rq(st('takes').getAll()))T.set(t.id,t);
+  navigator.storage?.persist?.();
+  const f=BLOCOS.find(b=>{const[a,t]=contagem(b.id);return !b.opc&&t&&a<t});if(f)blocoAtual=f.id;
+  pinta();
+})();
+</script>
+</body>
+</html>
